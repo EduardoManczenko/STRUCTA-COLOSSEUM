@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "types": ["mocha", "chai", "node"],
+    "target": "es2022",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "downlevelIteration": true,
+    "lib": ["es2022", "dom"],
+    "baseUrl": "./",
+    "paths": {
+      "@structa/sdk": ["./sdk/src/index.ts"]
+    }
+  },
+  "include": ["tests/**/*.ts", "scripts/**/*.ts", "sdk/**/*.ts"]
+}

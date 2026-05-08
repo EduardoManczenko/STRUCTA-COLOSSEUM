@@ -1,0 +1,23 @@
+.anchor
+.DS_Store
+target/
+node_modules/
+test-ledger/
+.idea/
+.vscode/
+
+# Local deployer keypair must NEVER be committed
+deploy/deployer.json
+deploy/*.json
+!deploy/.keep
+
+# Built program binaries
+*.so
+*.idl
+yarn-error.log
+
+# Debug dumps
+project.json
+project2.json
+.env
+.env.local

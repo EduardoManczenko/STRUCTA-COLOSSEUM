@@ -1,0 +1,1848 @@
+{
+  "address": "2vEvLqNyMKPx7B6nz1yaKJgNBMV7DeXv17dTYR8T5SSf",
+  "metadata": {
+    "name": "structa",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "STRUCTA tokenized real-estate protocol — Anchor program for cotas, yield distribution and burn/refund pools."
+  },
+  "instructions": [
+    {
+      "name": "burn_cotas",
+      "docs": [
+        "Holder burns `amount` of cotas in exchange for",
+        "`amount * token_price_usdc` USDC from `vault_burn`.",
+        "The holder's pending yield is auto-settled before the burn."
+      ],
+      "discriminator": [
+        2,
+        174,
+        250,
+        75,
+        200,
+        250,
+        183,
+        171
+      ],
+      "accounts": [
+        {
+          "name": "holder_signer",
+          "signer": true
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "project_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cota_mint",
+          "writable": true
+        },
+        {
+          "name": "holder",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              },
+              {
+                "kind": "account",
+                "path": "holder_signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "holder_cota_ata",
+          "writable": true
+        },
+        {
+          "name": "holder_usdc_ata",
+          "writable": true
+        },
+        {
+          "name": "vault_yield",
+          "writable": true
+        },
+        {
+          "name": "vault_burn",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "buy_cotas",
+      "docs": [
+        "Buy `amount` cotas. Investor pays `amount * token_price_usdc` in USDC",
+        "to `vault_principal` and receives `amount` freshly-minted SPL tokens.",
+        "",
+        "If the holder is buying for the first time, a [`HolderState`] PDA is",
+        "initialised and their `last_claimed_per_token` is set to the current",
+        "`cumulative_yield_per_token`, so they don't earn retroactive yield.",
+        "Subsequent buys auto-settle any pending yield first to keep the math",
+        "clean (single snapshot per holder)."
+      ],
+      "discriminator": [
+        124,
+        75,
+        208,
+        116,
+        191,
+        207,
+        38,
+        58
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "project_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cota_mint",
+          "writable": true
+        },
+        {
+          "name": "buyer_usdc_ata",
+          "docs": [
+            "USDC ATA owned by the buyer (source of payment AND destination of",
+            "pending yield auto-claim, if any)."
+          ],
+          "writable": true
+        },
+        {
+          "name": "buyer_cota_ata",
+          "docs": [
+            "Cota ATA — created if missing."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "buyer"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cota_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "vault_principal",
+          "writable": true
+        },
+        {
+          "name": "vault_yield",
+          "writable": true
+        },
+        {
+          "name": "holder",
+          "docs": [
+            "Per-holder PDA. `init_if_needed` is safe because we identify by",
+            "`(project, buyer)` and the PDA layout is fixed."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "claim_yield",
+      "docs": [
+        "Holder pulls their pending yield from `vault_yield`."
+      ],
+      "discriminator": [
+        49,
+        74,
+        111,
+        7,
+        186,
+        22,
+        61,
+        165
+      ],
+      "accounts": [
+        {
+          "name": "holder_signer",
+          "signer": true
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "project_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "holder",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              },
+              {
+                "kind": "account",
+                "path": "holder_signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "holder_usdc_ata",
+          "writable": true
+        },
+        {
+          "name": "vault_yield",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_sale",
+      "docs": [
+        "Close the cota sale (only authority)."
+      ],
+      "discriminator": [
+        124,
+        201,
+        1,
+        146,
+        231,
+        103,
+        193,
+        152
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "project"
+          ]
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "distribute_yield",
+      "docs": [
+        "Distribute `amount` of USDC pro-rata over current cota holders.",
+        "",
+        "The USDC must already be sitting in `vault_yield`. The instruction",
+        "is a pure on-chain bookkeeping update: it increments",
+        "`cumulative_yield_per_token` by `amount * SCALE / cotas_minted`. The",
+        "USDC stays in the vault until each holder calls `claim_yield`."
+      ],
+      "discriminator": [
+        233,
+        92,
+        186,
+        157,
+        235,
+        238,
+        212,
+        114
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "project"
+          ]
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_yield"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize_project",
+      "docs": [
+        "Initialise a new development project.",
+        "",
+        "Creates:",
+        "* the [`ProjectState`] PDA,",
+        "* the cota SPL [`Mint`] (mint + freeze authority = Project Authority PDA),",
+        "* three USDC token-account vaults (principal, yield, burn) owned by",
+        "the Project Authority PDA.",
+        "",
+        "`project_seed` is an arbitrary 32-byte identifier (e.g. the first",
+        "32 bytes of the development UUID). This lets us derive deterministic",
+        "PDAs without holding a global counter."
+      ],
+      "discriminator": [
+        69,
+        126,
+        215,
+        37,
+        20,
+        60,
+        73,
+        235
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "project_seed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "project_authority",
+          "docs": [
+            "PDA that signs for vault transfers, mint authority and freeze authority."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "usdc_mint",
+          "docs": [
+            "USDC mint reference. Stored on-chain so vault accounts can be",
+            "validated in subsequent instructions."
+          ]
+        },
+        {
+          "name": "cota_mint",
+          "docs": [
+            "Newly-created cota mint. PDA so the address is deterministic per",
+            "project."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  116,
+                  97,
+                  95,
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_principal",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  112,
+                  114,
+                  105,
+                  110,
+                  99,
+                  105,
+                  112,
+                  97,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_yield",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  121,
+                  105,
+                  101,
+                  108,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_burn",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  98,
+                  117,
+                  114,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "project_seed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "token_decimals",
+          "type": "u8"
+        },
+        {
+          "name": "total_supply",
+          "type": "u64"
+        },
+        {
+          "name": "token_price_usdc",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "lock_burn",
+      "docs": [
+        "Re-lock the burn pool. Doesn't move USDC back; just toggles the flag."
+      ],
+      "discriminator": [
+        69,
+        100,
+        117,
+        181,
+        126,
+        157,
+        68,
+        201
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "project"
+          ]
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "open_sale",
+      "docs": [
+        "Open the cota sale (only authority)."
+      ],
+      "discriminator": [
+        246,
+        220,
+        152,
+        93,
+        31,
+        43,
+        199,
+        143
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "project"
+          ]
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_authority",
+      "docs": [
+        "Authority transfers control to a new wallet. Useful for moving from",
+        "a single-signer admin to a multisig in the future."
+      ],
+      "discriminator": [
+        48,
+        169,
+        76,
+        72,
+        229,
+        180,
+        55,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "project"
+          ]
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unlock_burn",
+      "docs": [
+        "Move all remaining USDC from `vault_principal` to `vault_burn` and",
+        "flag the project as `burn_unlocked = true`. Holders can then",
+        "`burn_cotas` to redeem their principal at the original",
+        "`token_price_usdc`."
+      ],
+      "discriminator": [
+        255,
+        44,
+        12,
+        104,
+        113,
+        163,
+        220,
+        222
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "project"
+          ]
+        },
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "project_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_principal",
+          "writable": true
+        },
+        {
+          "name": "vault_burn",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "withdraw_principal",
+      "docs": [
+        "Authority withdraws `amount` of USDC from `vault_principal` to a",
+        "destination ATA (e.g. the incorporadora's USDC account)."
+      ],
+      "discriminator": [
+        6,
+        59,
+        175,
+        16,
+        210,
+        146,
+        119,
+        63
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "project"
+          ]
+        },
+        {
+          "name": "project",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  106,
+                  101,
+                  99,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project.project_seed",
+                "account": "ProjectState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "project_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_principal",
+          "writable": true
+        },
+        {
+          "name": "destination",
+          "docs": [
+            "Destination USDC ATA (must use the project's USDC mint)."
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "HolderState",
+      "discriminator": [
+        222,
+        82,
+        176,
+        75,
+        3,
+        75,
+        155,
+        184
+      ]
+    },
+    {
+      "name": "ProjectState",
+      "discriminator": [
+        41,
+        49,
+        200,
+        239,
+        125,
+        191,
+        219,
+        242
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AuthorityTransferred",
+      "discriminator": [
+        245,
+        109,
+        179,
+        54,
+        135,
+        92,
+        22,
+        64
+      ]
+    },
+    {
+      "name": "BurnLocked",
+      "discriminator": [
+        15,
+        238,
+        153,
+        241,
+        34,
+        112,
+        143,
+        210
+      ]
+    },
+    {
+      "name": "BurnUnlocked",
+      "discriminator": [
+        186,
+        229,
+        53,
+        159,
+        63,
+        145,
+        172,
+        13
+      ]
+    },
+    {
+      "name": "CotasBurned",
+      "discriminator": [
+        203,
+        235,
+        208,
+        8,
+        213,
+        82,
+        41,
+        66
+      ]
+    },
+    {
+      "name": "CotasPurchased",
+      "discriminator": [
+        157,
+        124,
+        0,
+        134,
+        14,
+        196,
+        132,
+        198
+      ]
+    },
+    {
+      "name": "PrincipalWithdrawn",
+      "discriminator": [
+        156,
+        68,
+        7,
+        220,
+        207,
+        134,
+        122,
+        12
+      ]
+    },
+    {
+      "name": "ProjectInitialized",
+      "discriminator": [
+        222,
+        194,
+        81,
+        9,
+        16,
+        183,
+        224,
+        22
+      ]
+    },
+    {
+      "name": "SaleStateChanged",
+      "discriminator": [
+        221,
+        96,
+        254,
+        17,
+        221,
+        0,
+        115,
+        58
+      ]
+    },
+    {
+      "name": "YieldClaimed",
+      "discriminator": [
+        177,
+        201,
+        94,
+        68,
+        19,
+        200,
+        227,
+        27
+      ]
+    },
+    {
+      "name": "YieldDistributed",
+      "discriminator": [
+        107,
+        100,
+        4,
+        71,
+        95,
+        176,
+        248,
+        94
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: caller is not the project authority."
+    },
+    {
+      "code": 6001,
+      "name": "WrongMint",
+      "msg": "Wrong mint passed to instruction."
+    },
+    {
+      "code": 6002,
+      "name": "WrongVault",
+      "msg": "Wrong vault passed to instruction."
+    },
+    {
+      "code": 6003,
+      "name": "SaleAlreadyOpen",
+      "msg": "Sale already open."
+    },
+    {
+      "code": 6004,
+      "name": "SaleAlreadyClosed",
+      "msg": "Sale already closed."
+    },
+    {
+      "code": 6005,
+      "name": "SaleClosed",
+      "msg": "Sale is closed for this project."
+    },
+    {
+      "code": 6006,
+      "name": "SoldOut",
+      "msg": "All cotas have been sold."
+    },
+    {
+      "code": 6007,
+      "name": "InvalidAmount",
+      "msg": "Invalid token amount (must be > 0)."
+    },
+    {
+      "code": 6008,
+      "name": "InvalidTotalSupply",
+      "msg": "Invalid total supply."
+    },
+    {
+      "code": 6009,
+      "name": "InvalidTokenPrice",
+      "msg": "Invalid token price."
+    },
+    {
+      "code": 6010,
+      "name": "InvalidTokenDecimals",
+      "msg": "Invalid token decimals."
+    },
+    {
+      "code": 6011,
+      "name": "InvalidAuthority",
+      "msg": "Invalid authority address."
+    },
+    {
+      "code": 6012,
+      "name": "MathOverflow",
+      "msg": "Math overflow."
+    },
+    {
+      "code": 6013,
+      "name": "NoHolders",
+      "msg": "Cannot distribute yield: no cotas have been minted."
+    },
+    {
+      "code": 6014,
+      "name": "NoCotaBalance",
+      "msg": "Holder has no cota balance."
+    },
+    {
+      "code": 6015,
+      "name": "NothingToClaim",
+      "msg": "Nothing to claim."
+    },
+    {
+      "code": 6016,
+      "name": "InsufficientPrincipalVault",
+      "msg": "Insufficient balance in vault_principal."
+    },
+    {
+      "code": 6017,
+      "name": "InsufficientYieldVault",
+      "msg": "Insufficient balance in vault_yield (deposit USDC first)."
+    },
+    {
+      "code": 6018,
+      "name": "InsufficientBurnVault",
+      "msg": "Insufficient balance in vault_burn."
+    },
+    {
+      "code": 6019,
+      "name": "BurnNotUnlocked",
+      "msg": "Burn pool is not unlocked."
+    },
+    {
+      "code": 6020,
+      "name": "BurnAlreadyLocked",
+      "msg": "Burn already locked."
+    },
+    {
+      "code": 6021,
+      "name": "InsufficientCotas",
+      "msg": "Holder has fewer cotas than requested."
+    }
+  ],
+  "types": [
+    {
+      "name": "AuthorityTransferred",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BurnLocked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BurnUnlocked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "principal_moved",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CotasBurned",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "holder",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "usdc_returned",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CotasPurchased",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "usdc_paid",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "holder",
+            "type": "pubkey"
+          },
+          {
+            "name": "cota_balance",
+            "type": "u64"
+          },
+          {
+            "name": "last_claimed_per_token",
+            "type": "u128"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "_reserved",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PrincipalWithdrawn",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "destination",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProjectInitialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "cota_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_supply",
+            "type": "u64"
+          },
+          {
+            "name": "token_price_usdc",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProjectState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Wallet that controls the project (single-signer admin)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "project_seed",
+            "docs": [
+              "Arbitrary 32-byte identifier of the project (typically derived from",
+              "the development UUID in the off-chain database)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "cota_mint",
+            "docs": [
+              "SPL mint of the cota token."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_mint",
+            "docs": [
+              "Reference USDC mint used by all three vaults."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "vault_principal",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault_yield",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault_burn",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_price_usdc",
+            "docs": [
+              "Price per cota in USDC base units (e.g. 100 USDC => 100_000_000 with 6 decimals)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_supply",
+            "docs": [
+              "Total cotas authorised for sale."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "cotas_minted",
+            "docs": [
+              "Cotas currently outstanding (mints − burns)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "cumulative_yield_per_token",
+            "docs": [
+              "Fixed-point cumulative yield per cota (×YIELD_SCALE)."
+            ],
+            "type": "u128"
+          },
+          {
+            "name": "total_yield_distributed",
+            "docs": [
+              "Lifetime USDC distributed via `distribute_yield`."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_yield_claimed",
+            "docs": [
+              "Lifetime USDC actually claimed by holders."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "token_decimals",
+            "type": "u8"
+          },
+          {
+            "name": "sale_open",
+            "type": "bool"
+          },
+          {
+            "name": "burn_unlocked",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "authority_bump",
+            "type": "u8"
+          },
+          {
+            "name": "_reserved",
+            "docs": [
+              "Reserved for future fields (multisig, fee config, …)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SaleStateChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "open",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "YieldClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "holder",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "YieldDistributed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "cumulative_yield_per_token",
+            "type": "u128"
+          },
+          {
+            "name": "cotas_minted",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}
