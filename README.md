@@ -15,6 +15,8 @@
 
 **Submission for Solana Colosseum** · Devnet program id: [`2vEvLqNyMKPx7B6nz1yaKJgNBMV7DeXv17dTYR8T5SSf`](https://explorer.solana.com/address/2vEvLqNyMKPx7B6nz1yaKJgNBMV7DeXv17dTYR8T5SSf?cluster=devnet)
 
+[![Pitch](https://img.shields.io/badge/Pitch-YouTube-FF0000?style=flat-square&logo=youtube)](https://www.youtube.com/watch?v=WLXhm6BPHjo) [![Demo](https://img.shields.io/badge/Demo-YouTube-FF0000?style=flat-square&logo=youtube)](https://www.youtube.com/watch?v=xKZ57h20LD0) [![X](https://img.shields.io/badge/X-@StructaWeb3-000000?style=flat-square&logo=x)](https://x.com/StructaWeb3)
+
 </div>
 
 ---
